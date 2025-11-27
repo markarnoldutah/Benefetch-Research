@@ -1,0 +1,70 @@
+{
+  "indexingMode": "consistent",
+  "automatic": false,
+  "includedPaths": [
+    // { "path": "/id/?" },
+    { "path": "/encounterId/?" },
+
+    { "path": "/tenantId/?" },
+    { "path": "/practiceId/?" },
+    { "path": "/locationId/?" },
+    { "path": "/patientId/?" },
+    { "path": "/type/?" },
+
+    { "path": "/visitDate/?" },
+    { "path": "/visitType/?" },
+
+    { "path": "/coverageDecision/encounterCoverageDecisionId/?" },
+    { "path": "/coverageDecision/primaryCoverageEnrollmentId/?" },
+    { "path": "/coverageDecision/secondaryCoverageEnrollmentId/?" },
+
+    { "path": "/eligibilityChecks/[]/eligibilityCheckId/?" },
+    { "path": "/eligibilityChecks/[]/coverageEnrollmentId/?" },
+    { "path": "/eligibilityChecks/[]/payerId/?" },
+    { "path": "/eligibilityChecks/[]/status/?" },
+    { "path": "/eligibilityChecks/[]/dateOfService/?" },
+
+    { "path": "/createdAtUtc/?" },
+    { "path": "/createdByUserId/?" }
+  ],
+  "excludedPaths": [{ "path": "/*" }],
+  "compositeIndexes": [
+    [
+      { "path": "/tenantId", "order": "ascending" },
+      { "path": "/practiceId", "order": "ascending" },
+      { "path": "/visitDate", "order": "descending" }
+    ],
+    [
+      { "path": "/patientId", "order": "ascending" },
+      { "path": "/visitDate", "order": "descending" }
+    ]
+  ]
+}
+
+// Likely queries
+
+// Get all encounters for a patient (timeline):
+// WHERE c.patientId = @patientId ORDER BY c.visitDate DESC
+
+// Dashboard per practice/tenant over date range:
+// WHERE c.tenantId = @tenantId AND c.practiceId = @practiceId AND c.visitDate BETWEEN @from AND @to
+
+// Filter by visitType (RoutineVision vs Medical)
+
+// Filter by EC status, payer, or coverageEnrollment:
+
+// ANY ec IN c.eligibilityChecks SATISFIES ec.status = 'Succeeded'
+
+// ANY ec IN c.eligibilityChecks SATISFIES ec.payerId = @payerId
+
+// Look at COB decision:
+
+// c.coverageDecision.primaryCoverageEnrollmentId
+
+// c.coverageDecision.secondaryCoverageEnrollmentId
+
+// Note:  
+// Those composites are there because:
+// You’ll often have filters like WHERE tenantId = ... AND practiceId = ... ORDER BY visitDate DESC.
+// And for patient timelines: WHERE patientId = ... ORDER BY visitDate DESC.
+// This keeps RU charges predictable when ordering by visitDate beyond the partition key.

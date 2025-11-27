@@ -1,0 +1,55 @@
+{
+  "indexingMode": "consistent",
+  "automatic": false,
+  "includedPaths": [
+    { "path": "/patientId/?" },
+    { "path": "/tenantId/?" },
+    { "path": "/practiceId/?" },
+    { "path": "/type/?" },
+
+    { "path": "/firstName/?" },
+    { "path": "/lastName/?" },
+    { "path": "/dateOfBirth/?" },
+
+    { "path": "/coverageEnrollments/[]/coverageEnrollmentId/?" },
+    { "path": "/coverageEnrollments/[]/payerId/?" },
+    { "path": "/coverageEnrollments/[]/planType/?" },
+    { "path": "/coverageEnrollments/[]/isActive/?" },
+
+    { "path": "/createdAtUtc/?" },
+    { "path": "/updatedAtUtc/?" }
+  ],
+  "excludedPaths": [{ "path": "/*" }]
+}
+
+// Likely queries
+
+// Get patient by id / patientId
+
+// List patients for a practice:
+// WHERE c.tenantId = @tenantId AND c.practiceId = @practiceId
+
+// Simple search by lastName, sometimes firstName + dateOfBirth
+
+// Filter on active coverage:
+// WHERE ANY e IN c.coverageEnrollments SATISFIES e.payerId = @payerId AND e.isActive = true
+
+// Note:
+// If you later want to support more advanced “search” behavior (partial last name, etc.), you might rely on an external search index (Cognitive Search) rather than more paths here
+
+// Azure Default
+// {
+//     "indexingMode": "consistent",
+//     "automatic": true,
+//     "includedPaths": [
+//         {
+//             "path": "/*"
+//         }
+//     ],
+//     "excludedPaths": [
+//         {
+//             "path": "/\"_etag\"/?"
+//         }
+//     ],
+//     "fullTextIndexes": []
+// }

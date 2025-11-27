@@ -1,0 +1,51 @@
+{
+  "indexingMode": "consistent",
+  "automatic": false,
+  "includedPaths": [
+    { "path": "/payerId/?" },
+
+    { "path": "/tenantId/?" },
+    { "path": "/type/?" },
+
+    { "path": "/name/?" },
+    { "path": "/planType/?" },
+
+    { "path": "/availityPayerCode/?" },
+    { "path": "/x12PayerId/?" },
+
+    { "path": "/isMedicare/?" },
+    { "path": "/isMedicaid/?" }
+  ],
+  "excludedPaths": [{ "path": "/*" }]
+}
+
+// Likely queries
+
+// Get payer by payerId / id
+
+// List global payers (tenantId = null) or tenant-specific payers
+
+// Filter by planType (Vision vs Medical)
+
+// Filter by availityPayerCode or x12PayerId when mapping to clearinghouse
+
+// Note:
+// No composite indexes here unless you start doing weird “ORDER BY name” across many payers a lot; 
+// even then the RU cost is typically tiny because payer volume is small.
+
+// Azure Default
+// {
+//     "indexingMode": "consistent",
+//     "automatic": true,
+//     "includedPaths": [
+//         {
+//             "path": "/*"
+//         }
+//     ],
+//     "excludedPaths": [
+//         {
+//             "path": "/\"_etag\"/?"
+//         }
+//     ],
+//     "fullTextIndexes": []
+// }

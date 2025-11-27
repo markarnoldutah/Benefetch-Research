@@ -1,0 +1,47 @@
+{
+  "indexingMode": "consistent",
+  "automatic": false,
+  "includedPaths": [
+    { "path": "/practiceId/?" },
+    { "path": "/tenantId/?" },
+    { "path": "/type/?" },
+    { "path": "/name/?" },
+    { "path": "/isActive/?" },
+
+    { "path": "/locations/[]/locationId/?" },
+    { "path": "/locations/[]/name/?" },
+    { "path": "/locations/[]/isActive/?" }
+  ],
+  "excludedPaths": [{ "path": "/*" }]
+}
+
+// Likely queries
+
+// List practices for a given tenant:
+// WHERE c.tenantId = @tenantId AND c.type = 'practice'
+
+// Filter by isActive
+
+// Get a specific practice by practiceId
+
+// Occasionally look up locations by id inside a practice document (locationId)
+
+// Note:
+// No composite index here yet; if you later do a lot of ORDER BY c.name within a tenant, we can add one.
+
+// Azure Default
+// {
+//     "indexingMode": "consistent",
+//     "automatic": true,
+//     "includedPaths": [
+//         {
+//             "path": "/*"
+//         }
+//     ],
+//     "excludedPaths": [
+//         {
+//             "path": "/\"_etag\"/?"
+//         }
+//     ],
+//     "fullTextIndexes": []
+// }

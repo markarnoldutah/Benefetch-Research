@@ -2,99 +2,99 @@
   "api_identifier": "https://api.benefetch.com",
   "permissions": [
     {
-      "name": "practice:read",
+      "value": "practice:read",
       "description": "View practice details and locations"
     },
     {
-      "name": "payers:read",
+      "value": "payers:read",
       "description": "View payer list and payer details"
     },
     {
-      "name": "payers:write",
+      "value": "payers:write",
       "description": "Manage payer configuration for the practice"
     },
     {
-      "name": "patients:read",
+      "value": "patients:read",
       "description": "Search and view patient records and details"
     },
     {
-      "name": "patients:write",
+      "value": "patients:write",
       "description": "Create and update patient records"
     },
     {
-      "name": "patients:delete",
+      "value": "patients:delete",
       "description": "Soft delete patient records"
     },
     {
-      "name": "coverage:read",
+      "value": "coverage:read",
       "description": "View coverage enrollments for patients"
     },
     {
-      "name": "coverage:write",
+      "value": "coverage:write",
       "description": "Add, update, and delete coverage enrollments"
     },
     {
-      "name": "encounters:read",
+      "value": "encounters:read",
       "description": "View encounters and encounter summaries"
     },
     {
-      "name": "encounters:write",
+      "value": "encounters:write",
       "description": "Create and update encounters, including coverage decisions"
     },
     {
-      "name": "eligibility:run",
+      "value": "eligibility:run",
       "description": "Run eligibility checks against payers"
     },
     {
-      "name": "eligibility:view-result",
+      "value": "eligibility:view-result",
       "description": "View parsed eligibility and benefit summaries"
     },
     {
-      "name": "eligibility:view-raw-response",
+      "value": "eligibility:view-raw-response",
       "description": "View raw eligibility response payloads"
     },
     {
-      "name": "lookups:read",
+      "value": "lookups:read",
       "description": "Read lookup data such as visit types and COB reasons"
     },
     {
-      "name": "lookups:write",
+      "value": "lookups:write",
       "description": "Customize practice-level lookup values"
     },
     {
-      "name": "config:read",
+      "value": "config:read",
       "description": "View tenant-level EC configuration and payer config"
     },
     {
-      "name": "config:write",
+      "value": "config:write",
       "description": "Manage tenant-level EC configuration and payer config"
     },
     {
-      "name": "users:read",
+      "value": "users:read",
       "description": "View users within the tenant"
     },
     {
-      "name": "users:assign-roles",
+      "value": "users:assign-roles",
       "description": "Assign or remove EC roles for users in the tenant"
     },
     {
-      "name": "reports:read",
+      "value": "reports:read",
       "description": "View EC reports and analytics dashboards"
     },
     {
-      "name": "reports:export",
+      "value": "reports:export",
       "description": "Export EC reporting data (e.g., CSV, Excel)"
     },
     {
-      "name": "integrations:read",
+      "value": "integrations:read",
       "description": "View EHR/PM integrations and connection status"
     },
     {
-      "name": "integrations:write",
+      "value": "integrations:write",
       "description": "Configure and manage EHR/PM integrations"
     },
     {
-      "name": "apikeys:manage",
+      "value": "apikeys:manage",
       "description": "Create and revoke API keys or webhooks for the tenant"
     }
   ]

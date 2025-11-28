@@ -43,8 +43,8 @@ public class Program
         var resourceServerId = await EnsureApiAsync(http, apiId, apiName);
         Console.WriteLine($"API ready. Resource server id: {resourceServerId}");
 
-        await EnsureApiScopesAsync(http, resourceServerId, EcSeedData.Permissions);
-        Console.WriteLine("API scopes synced.");
+        // await EnsureApiScopesAsync(http, resourceServerId, EcSeedData.Permissions);
+        Console.WriteLine("SKIPPED:  API scopes synced.");
 
         // 3) Create roles and assign permissions
         foreach (var role in EcSeedData.Roles)

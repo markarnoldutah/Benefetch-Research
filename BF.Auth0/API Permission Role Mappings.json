@@ -1,0 +1,128 @@
+{
+  "roles": [
+    {
+      "name": "frontdesk-basic",
+      "description": "Front desk staff with core EC workflow access",
+      "permissions": [
+        "practice:read",
+        "payers:read",
+        "patients:read",
+        "patients:write",
+        "coverage:read",
+        "coverage:write",
+        "encounters:read",
+        "encounters:write",
+        "eligibility:run",
+        "eligibility:view-result",
+        "lookups:read"
+      ]
+    },
+    {
+      "name": "frontdesk-lead",
+      "description": "Senior front desk with extended EC capabilities",
+      "permissions": [
+        "practice:read",
+        "payers:read",
+        "payers:write",
+        "patients:read",
+        "patients:write",
+        "patients:delete",
+        "coverage:read",
+        "coverage:write",
+        "encounters:read",
+        "encounters:write",
+        "eligibility:run",
+        "eligibility:view-result",
+        "eligibility:view-raw-response",
+        "lookups:read",
+        "lookups:write",
+        "reports:read"
+      ]
+    },
+    {
+      "name": "provider",
+      "description": "Optometrist/ophthalmologist using EC at chairside",
+      "permissions": [
+        "practice:read",
+        "payers:read",
+        "patients:read",
+        "coverage:read",
+        "encounters:read",
+        "encounters:write",
+        "eligibility:view-result",
+        "lookups:read",
+        "reports:read"
+      ]
+    },
+    {
+      "name": "billing",
+      "description": "Billing and insurance specialist",
+      "permissions": [
+        "practice:read",
+        "payers:read",
+        "payers:write",
+        "patients:read",
+        "patients:write",
+        "coverage:read",
+        "coverage:write",
+        "encounters:read",
+        "encounters:write",
+        "eligibility:run",
+        "eligibility:view-result",
+        "eligibility:view-raw-response",
+        "config:read",
+        "config:write",
+        "lookups:read",
+        "lookups:write",
+        "reports:read",
+        "reports:export",
+        "integrations:read",
+        "integrations:write"
+      ]
+    },
+    {
+      "name": "practice-admin",
+      "description": "Full administrative control for an EC tenant",
+      "permissions": [
+        "practice:read",
+        "payers:read",
+        "payers:write",
+        "patients:read",
+        "patients:write",
+        "patients:delete",
+        "coverage:read",
+        "coverage:write",
+        "encounters:read",
+        "encounters:write",
+        "eligibility:run",
+        "eligibility:view-result",
+        "eligibility:view-raw-response",
+        "lookups:read",
+        "lookups:write",
+        "config:read",
+        "config:write",
+        "users:read",
+        "users:assign-roles",
+        "reports:read",
+        "reports:export",
+        "integrations:read",
+        "integrations:write",
+        "apikeys:manage"
+      ]
+    },
+    {
+      "name": "auditor-readonly",
+      "description": "Read-only access for audits and oversight",
+      "permissions": [
+        "practice:read",
+        "payers:read",
+        "patients:read",
+        "coverage:read",
+        "encounters:read",
+        "eligibility:view-result",
+        "lookups:read",
+        "reports:read"
+      ]
+    }
+  ]
+}

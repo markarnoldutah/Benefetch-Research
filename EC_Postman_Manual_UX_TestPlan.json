@@ -1,0 +1,1447 @@
+{
+  "info": {
+    "name": "EC API \u2013 Manual UX Test Plan",
+    "_postman_id": "ec-api-ux-test-plan-autogen",
+    "description": "End-to-end user-journey oriented tests for the EC (Eligibility Checker) API.\n\nEnvironments expected:\n- baseUrl (e.g. https://localhost:5001)\n- accessToken (JWT for a test tenant)\n\nScenarios:\n1) Admin setup\n2) New patient with single coverage\n3) Dual coverage + COB decision\n4) Medical visit using medical plan\n5) Error & edge-case behavior\n6) Direct controller smoke tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 \u2013 Admin Setup",
+      "description": "Tenant-level configuration and practice/payer setup.",
+      "item": [
+        {
+          "name": "Get Tenant Config",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/config",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "config"
+              ]
+            },
+            "description": "Verify default tenant configuration is returned."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 2xx', function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Tenant Config",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/config",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "config"
+              ]
+            },
+            "description": "Set up sandbox clearinghouse settings and basic COB rules.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clearinghouseSettings\": {\n    \"vendor\": \"Availity\",\n    \"submitterId\": \"TEST123\",\n    \"endpointUrl\": \"https://sandbox.example.com/eligibility\"\n  },\n  \"featureFlags\": {\n    \"enableDualCoverage\": true,\n    \"enableCobDecisionEngine\": true\n  },\n  \"cobRules\": [\n    {\n      \"visitTypeCode\": \"ROUTINE_EYE\",\n      \"preferVisionOverMedical\": true\n    },\n    {\n      \"visitTypeCode\": \"MEDICAL\",\n      \"preferVisionOverMedical\": false\n    }\n  ]\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 2xx', function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Practice Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/practices",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "practices"
+              ]
+            },
+            "description": "Retrieve current practice profile (locations, providers)."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 2xx', function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Practice Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/practices",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "practices"
+              ]
+            },
+            "description": "Configure one location and one provider for test tenant.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Desert View Eyecare \\u2013 Sandbox\",\n  \"locations\": [\n    {\n      \"id\": \"loc-main\",\n      \"name\": \"Main Clinic\",\n      \"address\": \"123 Main St\",\n      \"phone\": \"555-555-0000\"\n    }\n  ],\n  \"providers\": [\n    {\n      \"id\": \"doc-1\",\n      \"name\": \"Dr. Sample OD\",\n      \"npi\": \"1234567890\"\n    }\n  ]\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 2xx', function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Payers",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/payers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "payers"
+              ]
+            },
+            "description": "List current payers configured for this tenant."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 2xx', function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Vision Payer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/payers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "payers"
+              ]
+            },
+            "description": "Create a vision payer used in journey B (single coverage).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sample Vision Plan\",\n  \"payerCode\": \"SVP001\",\n  \"type\": \"vision\",\n  \"routingHints\": {\n    \"clearinghouseId\": \"Availity\",\n    \"payerCodeAvaility\": \"SAMPLEV\"\n  }\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 2xx', function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Medical Payer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/payers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "payers"
+              ]
+            },
+            "description": "Create a medical payer used in journeys C and D (dual coverage & medical visit).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sample Medical Plan\",\n  \"payerCode\": \"SMP001\",\n  \"type\": \"medical\",\n  \"routingHints\": {\n    \"clearinghouseId\": \"Availity\",\n    \"payerCodeAvaility\": \"SAMPLEM\"\n  }\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 2xx', function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 \u2013 New Patient \u2013 Single Coverage & Eligibility",
+      "description": "New patient flow: create patient, add one coverage, create encounter, run eligibility.",
+      "item": [
+        {
+          "name": "Create New Patient",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/patients",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "patients"
+              ]
+            },
+            "description": "Create a new test patient for single coverage journey.\nSave the returned patientId as a Postman variable (e.g. pm.environment.set('patientId', ...)).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Alex\",\n  \"lastName\": \"Vision\",\n  \"dateOfBirth\": \"1990-01-01T00:00:00Z\",\n  \"email\": \"alex.vision@example.com\",\n  \"phone\": \"555-555-1111\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 2xx', function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Patient by Id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/patients/{{patientId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "patients",
+                "{{patientId}}"
+              ]
+            },
+            "description": "Verify that the newly created patient can be retrieved by id."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 2xx', function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Search Patients",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/patients/search",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "patients",
+                "search"
+              ]
+            },
+            "description": "Search for the patient by name and confirm they appear in results.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"searchText\": \"Alex\",\n  \"page\": 1,\n  \"pageSize\": 10,\n  \"continuationToken\": null\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 2xx', function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Add Vision Coverage Enrollment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/patients/{{patientId}}/coverage",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "patients",
+                "{{patientId}}",
+                "coverage"
+              ]
+            },
+            "description": "Attach a vision coverage enrollment to the patient.\nSave coverageEnrollmentId from the response.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"payerId\": \"{{visionPayerId}}\",\n  \"memberId\": \"V123456789\",\n  \"groupNumber\": \"GRP-VIS-001\",\n  \"coverageType\": \"vision\",\n  \"effectiveFrom\": \"2025-01-01T00:00:00Z\",\n  \"effectiveTo\": \"2025-12-31T00:00:00Z\",\n  \"cobOrder\": 1\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 2xx', function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Routine Eye Encounter",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/encounters",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "encounters"
+              ]
+            },
+            "description": "Create a routine eye encounter tied to the patient and vision coverage.\nSave encounterId from the response.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientId\": \"{{patientId}}\",\n  \"visitTypeCode\": \"ROUTINE_EYE\",\n  \"visitDate\": \"2025-10-01T15:00:00Z\",\n  \"locationId\": \"loc-main\",\n  \"providerId\": \"doc-1\",\n  \"primaryCoverageEnrollmentId\": \"{{coverageEnrollmentId}}\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 2xx', function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Run Eligibility \u2013 Vision",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/eligibility",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "eligibility"
+              ]
+            },
+            "description": "Run an eligibility check for the routine encounter using the vision plan.\nVerify parsedSummary shows an active plan.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"encounterId\": \"{{encounterId}}\",\n  \"coverageEnrollmentId\": \"{{coverageEnrollmentId}}\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 2xx', function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Eligibility Check by Id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/eligibility/{{eligibilityCheckId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "eligibility",
+                "{{eligibilityCheckId}}"
+              ]
+            },
+            "description": "Retrieve stored eligibility check and confirm request/response snapshots exist."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 2xx', function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Search Eligibility Checks for Patient",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/eligibility/search",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "eligibility",
+                "search"
+              ]
+            },
+            "description": "Search eligibility history for the patient and confirm the previous check appears.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientId\": \"{{patientId}}\",\n  \"page\": 1,\n  \"pageSize\": 10,\n  \"continuationToken\": null\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 2xx', function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 \u2013 Dual Coverage & COB",
+      "description": "Patient with both vision and medical coverage; COB decision and multiple eligibility checks.",
+      "item": [
+        {
+          "name": "Add Medical Coverage Enrollment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/patients/{{patientId}}/coverage",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "patients",
+                "{{patientId}}",
+                "coverage"
+              ]
+            },
+            "description": "Assign a secondary medical coverage to the same patient.\nSave medicalCoverageEnrollmentId.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"payerId\": \"{{medicalPayerId}}\",\n  \"memberId\": \"M987654321\",\n  \"groupNumber\": \"GRP-MED-001\",\n  \"coverageType\": \"medical\",\n  \"effectiveFrom\": \"2025-01-01T00:00:00Z\",\n  \"effectiveTo\": \"2025-12-31T00:00:00Z\",\n  \"cobOrder\": 2\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 2xx', function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Encounter \u2013 COB Scenario",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/encounters",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "encounters"
+              ]
+            },
+            "description": "Create an encounter where both vision and medical coverage are present.\nSave cobEncounterId.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientId\": \"{{patientId}}\",\n  \"visitTypeCode\": \"ROUTINE_EYE\",\n  \"visitDate\": \"2025-10-02T15:00:00Z\",\n  \"locationId\": \"loc-main\",\n  \"providerId\": \"doc-1\",\n  \"primaryCoverageEnrollmentId\": \"{{coverageEnrollmentId}}\",\n  \"secondaryCoverageEnrollmentId\": \"{{medicalCoverageEnrollmentId}}\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 2xx', function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Determine COB for Encounter",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/encounters/{{cobEncounterId}}/cob",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "encounters",
+                "{{cobEncounterId}}",
+                "cob"
+              ]
+            },
+            "description": "Call the COB/coverage-selection endpoint for the encounter.\nVerify primary/secondary decision matches the rules in config.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientId\": \"{{patientId}}\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 2xx', function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Run Eligibility \u2013 Vision (COB Encounter)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/eligibility",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "eligibility"
+              ]
+            },
+            "description": "Run vision eligibility tied to COB encounter and review benefits.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"encounterId\": \"{{cobEncounterId}}\",\n  \"coverageEnrollmentId\": \"{{coverageEnrollmentId}}\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 2xx', function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Run Eligibility \u2013 Medical (COB Encounter)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/eligibility",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "eligibility"
+              ]
+            },
+            "description": "Run medical eligibility for the COB encounter and confirm summary is intuitive for front desk.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"encounterId\": \"{{cobEncounterId}}\",\n  \"coverageEnrollmentId\": \"{{medicalCoverageEnrollmentId}}\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 2xx', function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 \u2013 Medical Visit Fallback",
+      "description": "Scenario where vision is inactive or not applicable and encounter should fall back to medical plan.",
+      "item": [
+        {
+          "name": "Expire Vision Coverage",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/patients/{{patientId}}/coverage/{{coverageEnrollmentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "patients",
+                "{{patientId}}",
+                "coverage",
+                "{{coverageEnrollmentId}}"
+              ]
+            },
+            "description": "Simulate an expired vision plan by setting effectiveTo in the past.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"effectiveTo\": \"2024-12-31T00:00:00Z\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 2xx', function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Medical Visit Encounter",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/encounters",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "encounters"
+              ]
+            },
+            "description": "Create a medical eye visit encounter that should clearly use the medical plan.\nSave medicalEncounterId.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientId\": \"{{patientId}}\",\n  \"visitTypeCode\": \"MEDICAL\",\n  \"visitDate\": \"2025-10-03T15:00:00Z\",\n  \"locationId\": \"loc-main\",\n  \"providerId\": \"doc-1\",\n  \"primaryCoverageEnrollmentId\": \"{{medicalCoverageEnrollmentId}}\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 2xx', function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Run Eligibility \u2013 Inactive Vision Plan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/eligibility",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "eligibility"
+              ]
+            },
+            "description": "Run eligibility using the expired vision plan and confirm summary indicates inactive coverage.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"encounterId\": \"{{medicalEncounterId}}\",\n  \"coverageEnrollmentId\": \"{{coverageEnrollmentId}}\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 2xx', function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Run Eligibility \u2013 Medical Plan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/eligibility",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "eligibility"
+              ]
+            },
+            "description": "Run eligibility with the medical plan and confirm benefits are presented clearly for the front desk.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"encounterId\": \"{{medicalEncounterId}}\",\n  \"coverageEnrollmentId\": \"{{medicalCoverageEnrollmentId}}\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 2xx', function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "05 \u2013 Error & Edge Cases",
+      "description": "Deliberately broken inputs to verify clean error handling and consistent error envelopes.",
+      "item": [
+        {
+          "name": "Eligibility \u2013 Invalid Member Id",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/eligibility",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "eligibility"
+              ]
+            },
+            "description": "Use an obviously invalid member id (if supported by API) and confirm response is a clean 400/422-style error, not 500.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"encounterId\": \"{{encounterId}}\",\n  \"coverageEnrollmentId\": \"{{coverageEnrollmentId}}\",\n  \"overrideMemberId\": \"XYZ-INVALID\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 2xx', function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Eligibility \u2013 Unknown CoverageEnrollmentId",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/eligibility",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "eligibility"
+              ]
+            },
+            "description": "Check behavior when coverageEnrollmentId does not exist.\nExpected: 404 mapped from KeyNotFoundException.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"encounterId\": \"{{encounterId}}\",\n  \"coverageEnrollmentId\": \"nonexistent-coverage-id\"\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 2xx', function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Patient \u2013 Nonexistent Id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/patients/nonexistent-patient-id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "patients",
+                "nonexistent-patient-id"
+              ]
+            },
+            "description": "Call GetPatientAsync with an id that does not exist and verify that middleware returns a 404 error envelope."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 2xx', function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "06 \u2013 Direct Controller Smoke Tests",
+      "description": "Simple single-call tests to make sure each controller method responds for a healthy tenant.",
+      "item": [
+        {
+          "name": "Lookups \u2013 Get All",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/lookups",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "lookups"
+              ]
+            },
+            "description": "Confirm lookups endpoint returns visit types, coverage types, etc."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 2xx', function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Encounters for Patient",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/patients/{{patientId}}/encounters/search",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "patients",
+                "{{patientId}}",
+                "encounters",
+                "search"
+              ]
+            },
+            "description": "Confirm the patient encounter history search endpoint returns previously created encounters.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"page\": 1,\n  \"pageSize\": 10,\n  \"continuationToken\": null\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 2xx', function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Eligibility Checks for Date Range",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/eligibility/search",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "eligibility",
+                "search"
+              ]
+            },
+            "description": "Confirm eligibility search by date range works and returns all checks in October 2025.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"startDate\": \"2025-10-01T00:00:00Z\",\n  \"endDate\": \"2025-10-31T23:59:59Z\",\n  \"page\": 1,\n  \"pageSize\": 20,\n  \"continuationToken\": null\n}"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 2xx', function () {",
+                  "    pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": []
+}

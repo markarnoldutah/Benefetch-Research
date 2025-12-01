@@ -1,0 +1,106 @@
+EC Controller XML Comments Guide
+
+This file contains:
+- Full PatientsController with XML comments
+- XML comment templates for all controller method types
+
+----------------------------------------------
+FULL PATIENTSCONTROLLER WITH XML COMMENTS
+----------------------------------------------
+
+<PatientsController>
+(Please paste the full PatientsController XML-commented code here; omitted for length.)
+
+----------------------------------------------
+XML COMMENT TEMPLATES
+----------------------------------------------
+
+1. Generic Search Endpoint
+----------------------------------------------
+/// <summary>
+/// Performs a paginated search for <entity> records within the current tenant.
+/// Supports continuation tokens for Cosmos DB paging.
+/// </summary>
+/// <param name="request">Search criteria including filters, page size, and continuation token.</param>
+/// <returns>A paginated set of <entity> results.</returns>
+
+2. Get by ID
+----------------------------------------------
+/// <summary>
+/// Retrieves a <entity> record by its identifier within the current tenant.
+/// </summary>
+/// <param name="<entityIdParam>">The unique identifier of the <entity>.</param>
+/// <returns>The <entity> record if found.</returns>
+
+3. Create Endpoint
+----------------------------------------------
+/// <summary>
+/// Creates a new <entity> within the current tenant.
+/// </summary>
+/// <param name="request">The data required to create the <entity>.</param>
+/// <returns>
+/// The newly created <entity> including its assigned identifier.
+/// </returns>
+
+4. Update Endpoint
+----------------------------------------------
+/// <summary>
+/// Updates an existing <entity> within the current tenant.
+/// Throws if the <entity> does not exist.
+/// </summary>
+/// <param name="<entityIdParam>">Identifier of the <entity> to modify.</param>
+/// <param name="request">Updated <entity> data.</param>
+/// <returns>The updated <entity> record.</returns>
+
+5. Delete Endpoint
+----------------------------------------------
+/// <summary>
+/// Deletes a <entity> within the current tenant.
+/// </summary>
+/// <param name="<entityIdParam>">Identifier of the <entity> to delete.</param>
+/// <returns>No content if the deletion succeeds.</returns>
+
+6. Eligibility Check Endpoint
+----------------------------------------------
+/// <summary>
+/// Performs an eligibility check against the configured clearinghouse or payer integration.
+/// Stores the request/response for audit and retrieval.
+/// </summary>
+/// <param name="request">Details required to perform the eligibility check.</param>
+/// <returns>A structured summary of plan activity, copays, benefits, and coverage status.</returns>
+
+7. Coverage Selection / COB Endpoint
+----------------------------------------------
+/// <summary>
+/// Determines the appropriate coverage order (primary/secondary)
+/// for the encounter based on payer rules, visit type, and patient enrollments.
+/// </summary>
+/// <param name="request">Encounter details and coverage context.</param>
+/// <returns>The COB decision and selected primary coverage.</returns>
+
+8. Encounter Creation
+----------------------------------------------
+/// <summary>
+/// Creates a new encounter (visit) for a patient, associating it with the tenant
+/// and applying encounter-specific coverage context.
+/// </summary>
+/// <param name="request">Encounter creation data.</param>
+/// <returns>The new encounter record.</returns>
+
+9. Tenant Config Endpoints
+----------------------------------------------
+/// <summary>
+/// Retrieves tenant-specific configuration including feature flags,
+/// payer settings, clearinghouse credentials, and workflow preferences.
+/// </summary>
+/// <returns>The tenant's configuration object.</returns>
+
+/// <summary>
+/// Updates tenant-level configuration values used across the application.
+/// </summary>
+/// <param name="request">Configuration values to update.</param>
+/// <returns>The updated tenant configuration.</returns>
+
+----------------------------------------------
+END OF FILE
+----------------------------------------------

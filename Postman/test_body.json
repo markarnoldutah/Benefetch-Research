@@ -1,7 +1,0 @@
-{
-  "client_id": "{{auth0_client_id}}",
-  "client_secret": "{{auth0_client_secret}}",
-  "audience": "{{auth0_audience}}",
-  "grant_type": "client_credentials"
-}
-

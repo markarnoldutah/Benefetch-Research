@@ -12,7 +12,7 @@ You can paste this into any future chat to instantly restore the full context.
 
 ---
 
-# **Benefetch / EC + ALOE (AloeOps) — Master Context Summary Document (Updated)**
+# **Benefetch / BF + ALOE (AloeOps) — Master Context Summary Document (Updated)**
 
 This summary restores full continuity across your projects, architecture, SaaS strategy, naming conventions, and technical decisions.
 
@@ -45,7 +45,7 @@ Your architecture preferences include:
 
 # **2. Your Two Major SaaS Product Lines**
 
-## **A. Benefetch / EC (Eligibility Checker)**
+## **A. Benefetch / BF (Benefetch)**
 
 A cloud-native eligibility, benefits, and COB decisioning platform built for:
 
@@ -60,7 +60,7 @@ Core capabilities:
 * Vision + medical COB logic
 * Patient coverage enrollment
 * Encounter workflow
-* Eligibility history & benefit summaries
+* Benefits history & benefit summaries
 
 The **Cosmos seed program** defines the authoritative domain model (tenants, practices, patients, encounters, payers, configurations, and lookups). 
 
@@ -110,9 +110,9 @@ ALOE is designed to scale across **enterprise operators** (e.g., 10–300 buildi
 
 ---
 
-# **3. EC Domain Context (Unchanged)**
+# **3. BF Domain Context (Unchanged)**
 
-Your EC platform uses:
+Your BF platform uses:
 
 * **Tenant → Practice → Patient → Encounter** hierarchy
 * Embedded subdocuments for:
@@ -166,7 +166,7 @@ ALOE is built specifically for **AL/MC workflow**, not SNF, not hospitals, and n
 
 # **6. Technical Architecture Preferences (Unchanged)**
 
-Across EC and ALOE:
+Across BF and ALOE:
 
 * .NET 8 preferred
 * Azure App Service or Functions
@@ -190,7 +190,7 @@ Derived from seed program:
 * **payers**
 * **lookups**
 
-These structures support EC today and form patterns for future multi-tenant ALOE components.
+These structures support BF today and form patterns for future multi-tenant ALOE components.
 
 ---
 
@@ -205,7 +205,7 @@ You prefer to:
 * Create complementary products rather than competing with incumbents
 * Grow organically into enterprise deals
 
-EC + ALOE together create a **dual-vertical SaaS portfolio**.
+BF + ALOE together create a **dual-vertical SaaS portfolio**.
 
 ---
 
@@ -234,8 +234,8 @@ When creating brand materials for ALOE:
 When starting a new conversation:
 
 * ALOE (Assisted Living Operating Environment) and **AloeOps.com** are the official brand and domain for the Assisted Living product.
-* EC architecture is anchored to the entity definitions found in **seed-program.cs**.
-* You are actively developing both EC and ALOE in parallel.
+* BF architecture is anchored to the entity definitions found in **seed-program.cs**.
+* You are actively developing both BF and ALOE in parallel.
 * PCC is a complement, not a competitor.
 * Multi-tenant, Azure-native, .NET-first patterns should be preserved.
 * Visual/branding outputs should reflect the ALOE brand direction.

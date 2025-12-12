@@ -1,17 +1,17 @@
-EC (Eligibility / Benefits Checker) for optometry is basically:
+BF (Benefits / Benefits Checker) for optometry is basically:
 **“A front-desk co-pilot that makes eye insurance and benefits predictable, fast, and profitable.”**
 
 Here’s the business plan + value prop in a clean summary.
 
 ---
 
-## 1. Problem EC Solves in Optometry
+## 1. Problem BF Solves in Optometry
 
 **Operational + financial pain:**
 
 * Staff juggle **multiple payers** (VSP, EyeMed, Spectera, medical payers, etc.) with different portals and benefit rules.
 * **Dual coverage** (vision + medical, primary + secondary) makes coordination-of-benefits messy.
-* Eligibility is often checked **too late** or incompletely:
+* Benefits is often checked **too late** or incompletely:
 
   * Wrong plan / inactive coverage discovered after the exam
   * Missed benefits (contacts vs glasses, frequency limits, copays, deductibles)
@@ -27,11 +27,11 @@ Optometry practices know they’re leaking money on this, but they don’t have 
 
 ---
 
-## 2. EC: Core Solution & Value Proposition
+## 2. BF: Core Solution & Value Proposition
 
-### What EC does
+### What BF does
 
-For optometry, EC is a **cloud-native SaaS** that:
+For optometry, BF is a **cloud-native SaaS** that:
 
 1. **Centralizes eligibility & benefits checks** in one UI:
 
@@ -95,7 +95,7 @@ Even modest improvements look meaningful:
 
 ## 4. Target Customer & Positioning
 
-### Who EC is for (initial beachhead)
+### Who BF is for (initial beachhead)
 
 * **Independent and small/mid-sized multi-location optometry groups**:
 
@@ -172,7 +172,7 @@ Early go-to-market:
 
 ## 7. Differentiation
 
-What makes EC different from “generic eligibility check” vendors:
+What makes BF different from “generic eligibility check” vendors:
 
 1. **Optometry-first workflow**
 
@@ -195,4 +195,4 @@ What makes EC different from “generic eligibility check” vendors:
 If you’d like, next I can help you draft:
 
 * A **one-page pitch** to optometry practice owners (non-technical language, ROI focused), or
-* A **slide outline** for an investor deck specifically for EC in optometry.
+* A **slide outline** for an investor deck specifically for BF in optometry.

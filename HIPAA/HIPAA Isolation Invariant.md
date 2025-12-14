@@ -1,4 +1,4 @@
-Below is the **authoritative, end-to-end flow** for enforcing a **HIPAA-compliant isolation invariant by practice** in your EC architecture. This is written as an **architectural guarantee**, not just “best practices.”
+Below is the **authoritative, end-to-end flow** for enforcing a **HIPAA-compliant isolation invariant by practice** in your BF architecture. This is written as an **architectural guarantee**, not just “best practices.”
 
 ---
 
@@ -158,7 +158,7 @@ Why not PK = `/practiceId`?
 Example:
 
 ```sql
-SELECT *
+SELBFT *
 FROM c
 WHERE c.tenantId = @tenantId
   AND c.practiceId = @practiceId

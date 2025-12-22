@@ -1,0 +1,221 @@
+┌─────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                        API LAYER                                                │
+│  ┌──────────────────────────────────────────────────────────────────────────────────────── ─  ┐ │
+│  │  EncountersController                                                                      │ │
+│  │  POST /api/practices/{practiceId}/encounters/{encounterId}/eligibility-checks/run          │ │
+│  │  RunEligibilityCheck(practiceId, encounterId, request, cancellationToken, timeoutSeconds)  │ │
+│  └───────────────────────────────────────  ─┬─────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────┼────────────────────────────────────────────────── ┘
+                                              │
+                                              │ 1. Delegates to
+                                              ▼
+┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                      SERVICE LAYER                                             │
+│  ┌──────────────────────────────────────────────────────────────────────────────────────────┐  │
+│  │  EncounterService.RunEligibilityCheckAsync()                                             │  │
+│  └───────────────────────────────────────  ─┬───────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────┼──────────────────────────────────────────────────┘
+                                              │
+                                              │ 2. Calls engine
+                                              ▼
+┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                           ENGINE ORCHESTRATION (A-D FLOW)                                      │
+│  ┌──────────────────────────────────────────────────────────────────────────────────────────┐  │
+│  │  EligibilityCheckEngineService.RunAsync()                                                │  │
+│  │                                                                                          │  │
+│  │  ┌─────────────────────────────────────────────────────────────────────────────────────┐ │  │
+│  │  │  A) LOAD & VALIDATE                                                                 │ │  │
+│  │  │     ├─> IEncounterRepository.GetByIdAsync()  ────┐                                  │ │  │
+│  │  │     └─> IPatientRepository.GetCoverageEnrollmentAsync()  ─── ┐                      │ │  │
+│  │  │                                                              │                      │ │  │
+│  │  │     ┌────────────────────────────────────────────────────────┘                      │ │  │
+│  │  │     │ Returns: Encounter + CoverageEnrollment                                       │ │  │
+│  │  │     ▼                                                                               │ │  │
+│  │  │  ┌───────────────────────────────────────────────────────────────────────────────┐  │ │  │
+│  │  │  │ Create Pending EligibilityCheckEmbedded & persist to repo                     │  │ │  │
+│  │  │  └───────────────────────────────────────────────────────────────────────────────┘  │ │  │
+│  │  │                                                                                     │ │  │
+│  │  │  B) CALL AVAILITY                                                                   │ │  │
+│  │  │     │ Build AvailityEligibilityRequest                                              │ │  │
+│  │  │     ▼                                                                               │ │  │
+│  │  │     IAvailityEligibilityClient.CheckEligibilityAsync() ───── ──┐                    │ │  │
+│  │  │                                                                │                    │ │  │
+│  │  └────────────────────────────────────────────────────────────────┼────────────────────┘ │  │
+└──────────────────────────────────────────────────────────────────────┼─────────────────────────┘
+                                                                       │
+                                                                       ▼
+┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                              HTTP INFRASTRUCTURE                                               │
+│  ┌──────────────────────────────────────────────────────────────────────────────────────────┐  │
+│  │  AvailityEligibilityClient (Typed HttpClient)                                            │  │
+│  │  └─> HttpClient.PostAsJsonAsync(path, request, cancellationToken)                        │  │
+│  └────────────────────────────────────┬─────────────────────────────────────────────────────┘  │
+│                                       │                                                        │
+│                                       │ Through pipeline                                       │
+│                                       ▼                                                        │
+│  ┌────────────────────────────────────────────────────────────────────────────────── ───────┐  │
+│  │  AvailityAuthHandler (DelegatingHandler)                                                 │  │
+│  │  └─> Adds: Authorization: Bearer {StaticBearerToken}                                     │  │
+│  │      (from AvailityOptions)                                                              │  │
+│  └────────────────────────────────────┬─────────────────────────────────────────────────────┘  │
+│                                       │                                                        │
+│                                       ▼                                                        │
+│  ┌──────────────────────────────────────────────────────────────────────────────────────────┐  │
+│  │  StandardResilienceHandler (Polly Pipeline)                                              │  │
+│  │                                                                                          │  │
+│  │  ┌────────────────────────────────────────────────────────────────────────────────────┐  │  │
+│  │  │  1. Retry Policy                                                                   │  │  │
+│  │  │     - MaxRetryAttempts: 3                                                          │  │  │
+│  │  │     - BackoffType: Exponential with Jitter                                         │  │  │
+│  │  │     - Delay: 1s - 5s max                                                           │  │  │
+│  │  ├────────────────────────────────────────────────────────────────────────────────────┤  │  │
+│  │  │  2. Circuit Breaker                                                                │  │  │
+│  │  │     - MinimumThroughput: 2                                                         │  │  │
+│  │  │     - BreakDuration: 30s                                                           │  │  │
+│  │  ├────────────────────────────────────────────────────────────────────────────────────┤  │  │
+│  │  │  3. Attempt Timeout                                                                │  │  │
+│  │  │     - Per-request: 30s                                                             │  │  │
+│  │  ├────────────────────────────────────────────────────────────────────────────────────┤  │  │
+│  │  │  4. Total Request Timeout                                                          │  │  │
+│  │  │     - All retries: 2 minutes                                                       │  │  │
+│  │  └────────────────────────────────────────────────────────────────────────────────────┘  │  │
+│  └───────────────────────────────────  ┬─────────────────────────────────────────────────── ┘  │
+└────────────────────────────────────────┼───────────────────────  ──────────────────────────────┘
+                                         │
+                                         │ HTTP POST
+                                         ▼
+┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                   EXTERNAL API                                                 │
+│  ┌──────────────────────────────────────────────────────────────────────────────────────────┐  │
+│  │  Availity Eligibility API                                                                │  │
+│  │  https://api.availity.com/eligibility                                                    │  │
+│  │                                                                                          │  │
+│  │  Request: AvailityEligibilityRequest (JSON)                                              │  │
+│  │  Response: AvailityEligibilityResponse (JSON) or Error                                   │  │
+│  └─────────────────────────────────── ─┬────────────────────────────────────────────────────┘  │
+└────────────────────────────────────────┼───────────────────────────────────────────── ─────────┘
+                                         │
+                                         │ Returns response
+                                         ▼
+┌──────────────────────────────────────────────────────────────────────────────────────────────── ─┐
+│                                    RESPONSE FLOW                                                 │
+│                                                                                                  │
+│  HttpClient ───> AvailityEligibilityClient                                                       │
+│                            │                                                                     │
+│                            │ Deserialize JSON to AvailityEligibilityResponse                     │
+│                            ▼                                                                     │
+│                  EligibilityCheckEngineService                                                   │
+│                            │                                                                     │
+│                            │ C) NORMALIZE & MAP                                                  │
+│                            │    - MapCoverageLines()                                             │
+│                            │    - NormalizeNetwork()                                             │
+│                            │    - TryParseMoney() / TryParsePercent()                            │
+│                            │    - Set Status: "Succeeded" or "Failed"                            │
+│                            │                                                                     │
+│                            │ D) PERSIST                                                          │
+│                            ▼                                                                     │
+│                  IEncounterRepository.UpdateEligibilityCheckAsync()                              │
+│                            │                                                                     │
+│                            │ Updates embedded EligibilityCheckEmbedded in Encounter              │
+│                            │ - CompletedAtUtc                                                    │
+│                            │ - Status, RawStatusCode, RawStatusDescription                       │
+│                            │ - CoverageLines[]                                                   │
+│                            │ - Payloads[]                                                        │
+│                            │ - ErrorMessage (if failed)                                          │
+│                            ▼                                                                     │
+│                  Returns: EligibilityCheckEmbedded                                               │
+│                            │                                                                     │
+│                            ▼                                                                     │
+│                  EncounterService                                                                │
+│                            │                                                                     │
+│                            ▼                                                                     │
+│                  EncountersController                                                            │
+│                            │                                                                     │
+│                            │ Map to EligibilityCheckResponseDto                                  │
+│                            ▼                                                                     │
+│                  HTTP 200 OK + JSON Response                                                     │
+│                            │                                                                     │
+│                            ▼                                                                     │
+│                        Client                                                                    │
+└─────────────────────────────────────────────────────────────────────────────────────────────── ──┘
+
+┌─────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                              CONFIGURATION SOURCES                                              │
+│                                                                                                 │
+│  appsettings.json                                                                               │
+│    │                                                                                            │
+│    ├─> Availity:BaseUrl: "https://api.availity.com"                                             │
+│    ├─> Availity:Eligibility:EndpointPath: "/eligibility/270271"                                 │
+│    ├─> Availity:Auth:Mode: "StaticBearer"                                                       │
+│    ├─> Availity:Auth:BearerToken: "REPLACE_WITH_SECRET_FROM_KEYVAULT"                           │
+│    ├─> Availity:Resilience:MaxRetryAttempts: 2                                                  │
+│    ├─> Availity:Resilience:BaseDelayMs: 250                                                     │
+│    ├─> Availity:Resilience:AttemptTimeoutSeconds: 12                                            │
+│    ├─> Availity:Resilience:TotalTimeoutSeconds: 25                                              │
+│    └─> Availity:Resilience:CircuitBreaker:Enabled: true                                         │
+│                                                                                                 │
+│    ▼                                                                                            │
+│  AvailityOptions (IOptions<AvailityOptions>)                                                    │
+│    │                                                                                            │
+│    ├─> Injected into: AvailityEligibilityClient                                                 │
+│    └─> Injected into: AvailityAuthHandler                                                       │
+│                                                                                                 │
+│  Program.cs                                                                                     │
+│    │                                                                                            │
+│    ├─> builder.Services.AddOptions<AvailityOptions>()                                           │
+│    │     .Bind(builder.Configuration.GetSection("Availity"))                                    │
+│    │                                                                                            │
+│    ├─> builder.Services.AddTransient<AvailityAuthHandler>()                                     │
+│    │                                                                                            │
+│    └─> builder.Services.AddHttpClient<IAvailityEligibilityClient, AvailityEligibilityClient>()  │
+│          .AddHttpMessageHandler<AvailityAuthHandler>()                                          │
+│          .AddStandardResilienceHandler(...)                                                     │
+└─────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+ERROR HANDLING:
+================
+┌───────────────────────────────────────────────────────────────────────────────────────── ───┐
+│  Exception Type                │  Handler Location                │  Action                 │
+├────────────────────────────────┼──────────────────────────────────┼─────────────────────────┤
+│  KeyNotFoundException          │  EligibilityCheckEngineService   │  Throw (404)            │
+│  (Encounter/Coverage not found)│                                  │                         │
+├────────────────────────────────┼──────────────────────────────────┼─────────────────────────┤
+│  OperationCanceledException    │  EligibilityCheckEngineService   │  Mark check as Failed   │
+│  (Timeout)                     │                                  │  with "timed out"       │
+│                                │                                  │  Then re-throw          │
+├────────────────────────────────┼──────────────────────────────────┼─────────────────────────┤
+│  HttpRequestException          │  Polly Retry Handler             │  Retry 3x with backoff  │
+│  (Network/API error)           │  → EligibilityCheckEngineService │  If still fails:        │
+│                                │                                  │  Mark check as Failed   │
+│                                │                                  │  with ex.Message        │
+├────────────────────────────────┼──────────────────────────────────┼─────────────────────────┤
+│  Any other Exception           │  EligibilityCheckEngineService   │  Mark check as Failed   │
+│                                │                                  │  with ex.Message        │
+│                                │                                  │  Then re-throw          │
+└────────────────────────────────┴──────────────────────────────────┴─────────────────────────┘
+
+KEY COMPONENTS SUMMARY:
+======================
+┌────────────────────────────────┬──────────────────────────────────────────────────────────┐
+│  Component                     │  Responsibility                                          │
+├────────────────────────────────┼──────────────────────────────────────────────────────────┤
+│  EncountersController          │  HTTP endpoint, authentication, input validation         │
+├────────────────────────────────┼──────────────────────────────────────────────────────────┤
+│  EncounterService              │  Business logic, delegates to engine                     │
+├────────────────────────────────┼──────────────────────────────────────────────────────────┤
+│  EligibilityCheckEngineService │  A-D orchestration: Load, Call, Normalize, Persist       │
+├────────────────────────────────┼──────────────────────────────────────────────────────────┤
+│  AvailityEligibilityClient     │  HTTP client wrapper, calls Availity API                 │
+├────────────────────────────────┼──────────────────────────────────────────────────────────┤
+│  AvailityAuthHandler           │  Adds Bearer token to requests                           │
+├────────────────────────────────┼──────────────────────────────────────────────────────────┤
+│  StandardResilienceHandler     │  Retry, circuit breaker, timeouts via Polly              │
+├────────────────────────────────┼──────────────────────────────────────────────────────────┤
+│  HttpClient (from Factory)     │  .NET HTTP client, configured with base URL & handlers   │
+├────────────────────────────────┼──────────────────────────────────────────────────────────┤
+│  AvailityOptions               │  Configuration binding (BaseUrl, path, token, resilience)│
+├────────────────────────────────┼──────────────────────────────────────────────────────────┤
+│  IEncounterRepository          │  Cosmos DB operations for Encounter documents            │
+├────────────────────────────────┼──────────────────────────────────────────────────────────┤
+│  IPatientRepository            │  Cosmos DB operations for Patient documents              │
+└────────────────────────────────┴──────────────────────────────────────────────────────────┘

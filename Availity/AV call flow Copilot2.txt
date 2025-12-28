@@ -1,0 +1,20 @@
+
+Updated Call Flow v2
+
+┌─────────────────────────────────────────────────────────────────┐
+│  POST /eligibility-checks                                       │
+│  └→ Creates check (Pending)                                     │
+│  └→ Calls InitiateCoverageCheckAsync                            │
+│  └→ Availity returns {id, statusCode: "0"}                      │
+│  └→ Updates check (InProgress, availityCoverageId)              │
+│  └→ Returns 202 {eligibilityCheckId, status: "InProgress"}      │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│  GET /eligibility-checks/{id}  (UI polls every 1-3 seconds)     │
+│  └→ Loads check from Cosmos                                     │
+│  └→ IF status == InProgress:                                    │
+│       └→ Calls PollCoverageStatusAsync                          │
+│       └→ Updates check based on Availity response               │
+│  └→ Returns current status                                      │
+└─────────────────────────────────────────────────────────────────┘

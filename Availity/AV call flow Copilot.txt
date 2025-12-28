@@ -1,0 +1,29 @@
+┌─────────────────────────────────────────────────────────────────────────┐
+│                          KICKOFF (POST)                                 │
+├─────────────────────────────────────────────────────────────────────────┤
+│ UI → POST /eligibility-checks                                           │
+│      └→ BF creates EligibilityCheck (status=Pending)                    │
+│      └→ BF calls POST /availity/v1/coverages                            │
+│           └→ Availity returns {id, statusCode: "0"}                     │
+│      └→ BF updates EligibilityCheck (status=InProgress, availityCovId)  │
+│      └→ Returns 202 {eligibilityCheckId, status, nextPollAfterMs}       │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│                          POLL (GET)                                     │
+├─────────────────────────────────────────────────────────────────────────┤
+│ UI → GET /eligibility-checks/{id}                                       │
+│      └→ BF loads EligibilityCheck from Cosmos                           │
+│      └→ IF status == InProgress:                                        │
+│           └→ BF calls GET /availity/v1/coverages/{availityCoverageId}   │
+│           └→ IF statusCode == "0" or "R1":                              │ 
+│                └→ Return 200 {status: InProgress, nextPollAfterMs}      │
+│           └→ ELSE IF statusCode == "4":                                 │
+│                └→ Parse results, update EligibilityCheck                │
+│                └→ Return 200 {status: Complete, summary...}             │
+│           └→ ELSE (error states):                                       │
+│                └→ Update EligibilityCheck (status=Failed)               │
+│                └→ Return 200 {status: Failed, errors...}                │
+│      └→ ELSE (already terminal):                                        │
+│           └→ Return cached result                                       │
+└─────────────────────────────────────────────────────────────────────────┘

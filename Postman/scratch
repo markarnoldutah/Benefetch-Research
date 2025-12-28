@@ -1,0 +1,11 @@
+design a postman collection of requests for the Patients controller (not including Encounter methods) that includes: •	happy path requests with tests. •	error path requests with tests.  (Error requests and tests should confirm resource isolation for HIPAA compliance) •	POST and PUT request bodies should include all settable properties, •	GET request tests should validate that all expected properties are returned in the response •	Update Cosmos Seed data as necessary with customized entities for testing happy and error paths
+
+
+ditto Encounters collection
+full documentation
+
+update error path for patients API
+assume tester will have access to prac_001 and prac_004
+duplicate Get Patient - Wrong Practice Same Tenant. Instances should include: 
+1) returns a 401 when trying to access a patient in a Practice to which tester does not have access.  
+2) returns a 404 when trying to access a non-existent patient in a Practice to which tester does have access. 

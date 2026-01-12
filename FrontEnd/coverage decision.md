@@ -17,7 +17,7 @@ The JSON example shows both CoverageDecision and EligibilityChecks in a single r
 •	The COB reason
 More Realistic Workflow
 
-```javascript
+```cs
 Step 1: Check-in request WITH eligibility checks, WITHOUT coverage decision
         → System runs eligibility checks for all coverages
 
